@@ -1,3 +1,10 @@
+## Initialised with Node template
+## Extended with templates for Python, Docker/Compose, IDE
+
+##################################################
+# Node - unedited
+##################################################
+
 # Logs
 logs
 *.log
@@ -137,3 +144,81 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+##################################################
+# Python
+##################################################
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# Test / coverage
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+##################################################
+# Environment variables / secrets
+##################################################
+
+.env
+.env.*
+!.env.example
+
+##################################################
+# Docker
+##################################################
+
+docker-compose.override.yml
+*.pid
+
+##################################################
+# Frontend build artifacts (Vite/React additions)
+##################################################
+
+dist/
+coverage/
+.playwright/
+
+##################################################
+# IDE / Editor
+##################################################
+
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+.idea/
+*.swp
+*.swo
+
+##################################################
+# OS files
+##################################################
+
+.DS_Store
+Thumbs.db
+
+##################################################
+# Misc
+##################################################
+
+*.bak
+*.tmp
+*.cache
