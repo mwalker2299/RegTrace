@@ -1,0 +1,24 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-pyright.pyright",
+    "charliermarsh.ruff",
+
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "bradlc.vscode-tailwindcss",
+
+    "ms-azuretools.vscode-docker",
+    "eamodio.gitlens",
+
+    "mtxr.sqltools",
+    "humao.rest-client",
+    "ms-playwright.playwright",
+    "dsznajder.es7-react-js-snippets",
+    "formulahendry.auto-rename-tag",
+    "christian-kohler.path-intellisense",
+    "usernamehw.errorlens",
+    "planbcoding.vscode-react-refactor"
+  ]
+}
