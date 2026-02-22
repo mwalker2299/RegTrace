@@ -10,8 +10,8 @@
     "preview": "vite preview",
 
     "lint": "eslint .",
-    "format": "prettier --write .",
-    "format:check": "prettier --check .",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx}\"",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx}\"",
 
     "typecheck": "tsc -b --noEmit",
     "test": "vitest run"
@@ -33,6 +33,7 @@
     "@typescript-eslint/parser": "^8.56.0",
     "@vitejs/plugin-react-swc": "^4.2.2",
     "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "eslint-plugin-react": "^7.37.5",
