@@ -2,9 +2,9 @@ services:
   db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-regtrace}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-regtrace}
-      POSTGRES_DB: ${POSTGRES_DB:-regtrace}
+      POSTGRES_USER: regtrace
+      POSTGRES_PASSWORD: regtrace
+      POSTGRES_DB: regtrace
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -19,7 +19,7 @@ services:
       context: .
       dockerfile: docker/api.Dockerfile
     environment:
-      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg://regtrace:regtrace@db:5432/regtrace}
+      APP_DATABASE_URL: postgresql+psycopg://regtrace:regtrace@db:5432/regtrace
     depends_on:
       db:
         condition: service_healthy
@@ -37,7 +37,7 @@ services:
       context: .
       dockerfile: docker/web.Dockerfile
       args:
-        VITE_API_BASE: ${VITE_API_BASE:-/api/v1}
+        VITE_API_BASE: /api/v1
     depends_on:
       api:
         condition: service_healthy
