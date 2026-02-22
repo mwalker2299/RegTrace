@@ -14,7 +14,7 @@ export default defineConfig([
     files: ["**/*.{ts,tsx}"],
     extends: [
       js.configs.recommended,
-      ...tseslint.configs.recommended,
+      ...tseslint.configs.recommendedTypeChecked,
       react.configs.flat.recommended,
       reactHooks.configs.flat.recommended,
       reactRefresh.configs.vite,
@@ -25,6 +25,10 @@ export default defineConfig([
     languageOptions: {
       ecmaVersion: 2020,
       globals: globals.browser,
+      parserOptions: {
+        project: ["./tsconfig.app.json", "./tsconfig.node.json"],
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     settings: {
       react: { version: "detect" },
