@@ -9,8 +9,6 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 export default defineConfig([
   globalIgnores(['dist']),
 
-  // If you're TS-only, you can keep this as ts/tsx.
-  // If you might have JS/JSX, change to: '**/*.{js,jsx,ts,tsx}'
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -26,6 +24,11 @@ export default defineConfig([
     },
     settings: {
       react: { version: 'detect' },
+    },
+    rules: {
+      // Prevent eslint from complaining about React not being in scope when using JSX
+      "react/react-in-jsx-scope": "off",
+      "react/jsx-uses-react": "off",
     },
   },
 ])
