@@ -7,7 +7,7 @@ BACKEND_DIR := backend
 FRONTEND_PROJECT_NAME := frontend
 
 API_BASE ?= http://localhost:8000
-WEB_BASE ?= http://localhost:3000
+WEB_BASE ?= http://localhost:8090
 
 COMPOSE_DEV := docker compose
 COMPOSE_CI  := docker compose -f docker-compose.ci.yml
