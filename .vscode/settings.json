@@ -2,8 +2,11 @@
   "editor.formatOnSave": true,
 
   "python.analysis.typeCheckingMode": "strict",
+  "python.analysis.autoImportCompletions": true,
+  "python.defaultInterpreterPath": "backend/.venv/bin/python",
 
   "ruff.enable": true,
+  "[python]": { "editor.defaultFormatter": "charliermarsh.ruff" },
 
   "files.exclude": {
     "**/__pycache__": true,
