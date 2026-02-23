@@ -204,7 +204,7 @@ smoke-web-proxy-api: ## curl /api/v1/healthz == 200 (verifies web -> api proxy i
 e2e: e2e-playwright ## Run E2E
 
 e2e-playwright: ## playwright test
-	pnpm -F $(FRONTEND_PROJECT_NAME) e2e
+	pnpm -F $(FRONTEND_PROJECT_NAME) e2e:run
 
 # ---------------- CI stage groups ----------------
 .PHONY: ci-stage1 ci-stage2 ci-stage3 ci-stage4 ci
