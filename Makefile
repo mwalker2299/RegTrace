@@ -196,7 +196,7 @@ e2e-playwright: ## playwright test
 	pnpm -F $(FRONTEND_PROJECT_NAME) e2e
 
 # ---------------- CI stage groups ----------------
-.PHONY: ci-stage1 ci-stage2 ci-stage3 ci-stage3_5 ci-stage4 ci
+.PHONY: ci-stage1 ci-stage2 ci-stage3 ci-stage4 ci-stage5 ci
 
 ci-stage1: fmt-check lint typecheck ## Quality gates (fast)
 
@@ -204,8 +204,8 @@ ci-stage2: test-unit test-component ## Unit + component tests
 
 ci-stage3: test-integration ## Integration tests
 
-ci-stage3_5: build-images compose-up-ci smoke compose-down-ci ## Build + smoke
+ci-stage4: build-images compose-up-ci smoke compose-down-ci ## Build + smoke
 
-ci-stage4: compose-up-ci e2e compose-down-ci ## E2E
+ci-stage5: compose-up-ci e2e compose-down-ci ## E2E
 
-ci: ci-stage1 ci-stage2 ci-stage3 ci-stage3_5 ci-stage4 ## Full local CI run
+ci: ci-stage1 ci-stage2 ci-stage3 ci-stage4 ci-stage5 ## Full local CI run
