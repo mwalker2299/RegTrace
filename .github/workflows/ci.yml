@@ -1,0 +1,370 @@
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  API_BASE: http://localhost:8000
+  WEB_BASE: http://localhost:8090
+
+jobs:
+  # -------------------------
+  # Backend Quality (split)
+  # -------------------------
+  backend_fmt_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install deps (backend)
+        run: make bootstrap-backend UV_SYNC_FLAGS=--frozen
+
+      - name: Format check (backend)
+        run: make fmt-check-backend
+
+  backend_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install deps (backend)
+        run: make bootstrap-backend UV_SYNC_FLAGS=--frozen
+
+      - name: Lint (backend)
+        run: make lint-backend
+
+  backend_typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install deps (backend)
+        run: make bootstrap-backend UV_SYNC_FLAGS=--frozen
+
+      - name: Typecheck (backend)
+        run: make typecheck-backend
+
+  # -------------------------
+  # Frontend Quality (split)
+  # -------------------------
+  frontend_fmt_check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install deps (frontend)
+        run: make bootstrap-frontend PNPM_INSTALL_FLAGS=--frozen-lockfile
+
+      - name: Format check (frontend)
+        run: make fmt-check-frontend
+
+  frontend_lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install deps (frontend)
+        run: make bootstrap-frontend PNPM_INSTALL_FLAGS=--frozen-lockfile
+
+      - name: Lint (frontend)
+        run: make lint-frontend
+
+  frontend_typecheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install deps (frontend)
+        run: make bootstrap-frontend PNPM_INSTALL_FLAGS=--frozen-lockfile
+
+      - name: Typecheck (frontend)
+        run: make typecheck-frontend
+
+  # -------------------------
+  # Backend Tests (gated by all 3 backend quality jobs)
+  # -------------------------
+  backend_unit:
+    runs-on: ubuntu-latest
+    needs: [backend_fmt_check, backend_lint, backend_typecheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install deps (backend)
+        run: make bootstrap-backend UV_SYNC_FLAGS=--frozen
+
+      - name: Unit tests (backend)
+        run: make test-unit-backend
+
+  backend_component:
+    runs-on: ubuntu-latest
+    needs: [backend_fmt_check, backend_lint, backend_typecheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install deps (backend)
+        run: make bootstrap-backend UV_SYNC_FLAGS=--frozen
+
+      - name: Component tests (backend)
+        run: make test-component-backend
+
+  # -------------------------
+  # Frontend Tests (gated by all 3 frontend quality jobs)
+  # -------------------------
+  frontend_unit:
+    runs-on: ubuntu-latest
+    needs: [frontend_fmt_check, frontend_lint, frontend_typecheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install deps (frontend)
+        run: make bootstrap-frontend PNPM_INSTALL_FLAGS=--frozen-lockfile
+
+      - name: Unit tests (frontend)
+        run: make test-unit-frontend
+
+  frontend_component:
+    runs-on: ubuntu-latest
+    needs: [frontend_fmt_check, frontend_lint, frontend_typecheck]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install deps (frontend)
+        run: make bootstrap-frontend PNPM_INSTALL_FLAGS=--frozen-lockfile
+
+      - name: Component tests (frontend)
+        run: make test-component-frontend
+
+  # -------------------------
+  # Integration (gated as requested)
+  # -------------------------
+  backend_integration:
+    runs-on: ubuntu-latest
+    needs: [backend_unit, backend_component]
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: app
+          POSTGRES_PASSWORD: app
+          POSTGRES_DB: app
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U app -d app"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      APP_DATABASE_URL: postgresql+psycopg://app:app@localhost:5432/app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Install deps (backend)
+        run: make bootstrap-backend UV_SYNC_FLAGS=--frozen
+
+      # Recommended: make target that does NOT manage compose (CI owns infra)
+      - name: Integration tests (backend)
+        run: make test-integration-backend-ci
+
+  frontend_integration:
+    runs-on: ubuntu-latest
+    needs: [frontend_unit, frontend_component]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install deps (frontend)
+        run: make bootstrap-frontend PNPM_INSTALL_FLAGS=--frozen-lockfile
+
+      - name: Integration tests (frontend)
+        run: make test-integration-frontend
+
+  # -------------------------
+  # Container smoke (requires backend+frontend unit+component success)
+  # -------------------------
+  container_smoke:
+    runs-on: ubuntu-latest
+    needs: [backend_unit, backend_component, frontend_unit, frontend_component]
+    env:
+      API_BASE: http://localhost:8000
+      WEB_BASE: http://localhost:8090
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build images
+        run: make build-images
+
+      - name: Start stack (CI compose)
+        run: make compose-up-ci
+
+      - name: Smoke
+        run: make smoke
+
+      - name: Logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.ci.yml logs --no-color
+
+      - name: Shutdown
+        if: always()
+        run: make compose-down-ci
+
+  # -------------------------
+  # E2E (auto; gated by smoke + both integrations)
+  # -------------------------
+  e2e:
+    runs-on: ubuntu-latest
+    needs: [container_smoke, backend_integration, frontend_integration]
+    env:
+      API_BASE: http://localhost:8000
+      WEB_BASE: http://localhost:8090
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: "10"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Install deps (frontend)
+        run: make bootstrap-frontend PNPM_INSTALL_FLAGS=--frozen-lockfile
+
+      - name: Build images
+        run: make build-images
+
+      - name: Start stack (CI compose)
+        run: make compose-up-ci
+
+      - name: Install Playwright browsers
+        run: pnpm -F frontend exec playwright install --with-deps
+
+      - name: Run E2E
+        run: make e2e
+
+      - name: Logs on failure
+        if: failure()
+        run: docker compose -f docker-compose.ci.yml logs --no-color
+
+      - name: Shutdown
+        if: always()
+        run: make compose-down-ci

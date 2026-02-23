@@ -6,8 +6,15 @@ SHELL := /bin/bash
 BACKEND_DIR := backend
 FRONTEND_PROJECT_NAME := frontend
 
+UV_SYNC_FLAGS ?=
+PNPM_INSTALL_FLAGS ?=
+
 API_BASE ?= http://localhost:8000
 WEB_BASE ?= http://localhost:8090
+
+CURL_SMOKE = curl -fsS \
+	--retry 30 --retry-delay 1 --retry-connrefused \
+	--connect-timeout 2 --max-time 5
 
 COMPOSE_DEV := docker compose
 COMPOSE_CI  := docker compose -f docker-compose.ci.yml
@@ -58,10 +65,10 @@ bootstrap-env: ## copy .env.example -> .env if missing
 
 bootstrap-backend: ## uv sync
 	cd $(BACKEND_DIR)
-	uv sync
+	uv sync $(UV_SYNC_FLAGS)
 
 bootstrap-frontend: ## pnpm install
-	pnpm -F $(FRONTEND_PROJECT_NAME) install 
+	pnpm -F $(FRONTEND_PROJECT_NAME) install $(PNPM_INSTALL_FLAGS)
 
 # ---------------- Leaf: format ----------------
 .PHONY: fmt fmt-backend fmt-frontend
@@ -137,6 +144,10 @@ test-integration-backend: ## pytest integration (requires Postgres)
 	uv run pytest app/tests/integration
 	$(COMPOSE_DEV) down -v
 
+test-integration-backend-ci: ## pytest integration for CI (assumes DB already up)
+	cd $(BACKEND_DIR)
+	uv run pytest app/tests/integration
+
 test-integration-frontend: ## mocked integration (MSW)
 	pnpm -F $(FRONTEND_PROJECT_NAME) test:integration
 
@@ -177,16 +188,16 @@ dev-web: ## Vite dev server
 smoke: smoke-api-health smoke-api-ready smoke-web-root smoke-web-proxy-api ## Run smoke checks
 
 smoke-api-health: ## curl /healthz == 200
-	curl -fsS $(API_BASE)/healthz > /dev/null
+	$(CURL_SMOKE) $(API_BASE)/healthz > /dev/null
 
 smoke-api-ready: ## curl /readyz == 200
-	curl -fsS $(API_BASE)/readyz > /dev/null
+	$(CURL_SMOKE) $(API_BASE)/readyz > /dev/null
 
 smoke-web-root: ## curl / == 200
-	curl -fsS $(WEB_BASE)/ > /dev/null
+	$(CURL_SMOKE) $(WEB_BASE)/ > /dev/null
 
 smoke-web-proxy-api: ## curl /api/v1/healthz == 200 (verifies web -> api proxy is working)
-	curl -fsS $(WEB_BASE)/api/v1/healthz > /dev/null
+	$(CURL_SMOKE) $(WEB_BASE)/api/v1/healthz > /dev/null
 
 # ---------------- E2E ----------------
 .PHONY: e2e e2e-playwright
