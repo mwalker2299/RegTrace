@@ -17,6 +17,9 @@ This repo now has a working scaffold for a full-stack **FastAPI + React (TypeScr
   - smoke tests run against container images to confirm health and ready endpoints are accessible and happy.
 - stage 4: E2E tests
 
+<img width="1397" height="655" alt="image" src="https://github.com/user-attachments/assets/4a3d1c9f-4c67-48ac-90a6-8dcc305e9183" />
+
+
 The project includes **deployment-ready Docker builds** for both apps (build/release/run separation, configuration via environment), and two development modes: a fast hot-reload loop (Vite + Uvicorn reload + Compose-managed Postgres) and a staging-analogous mode that uses compose to raise built web and api images for smoke/E2E-style validation.
 
 A top-level **Makefile** is the single command surface for local and CI (lint/format/typecheck/tests/compose), with local dev commands that cover the same stages enforced by the CI pipeline on every PR. This makes it simple to validate code locally before PR.
